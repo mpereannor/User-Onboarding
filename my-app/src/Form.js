@@ -5,32 +5,74 @@ import * as yup from 'yup';
 
 //declaration of variables 
 
-const friendsApi = 'http://localhost:4000/friends';
+const usersApi = 'https://reqres.in/api/users';
 
-// 1- THIS GOES INTO <Formik /> `initialValues` prop
-const initialFriendForm = {
+const initUserForm = {
   name: '',
-  age: '',
+  email: '',
+  password: '',
 };
 
 
 const FormikForm  =  () => {
+    const [userList, setUserList] = useState([]);
+    const [serverError, setServerError] = useState('');
 
+    //GET REQUEST 
 
+    const fetchUsers = () => {
+        axios.get(usersApi)
+            .then(res => {
+                setUserList(res.data);
+            })
+            .catch(err => {
+                setServerError(err.message)
+            });
+    };
 
+    //POST REQUEST 
+    
+    const addUser = (userFormValues, userAction) => {
 
+        const usersToBeAdded = 
+            {
+                name: userFormValues.name,
+                email: userFormValues.email,
+                password: userFormValues.password
+            };
 
+        axios.post(usersApi, usersToBeAdded)
+        .then(res => {
 
+        const newNewUser = res.data;
+       
+        setUserList(userList.concat(newNewUser));
+        userAction.resetForm();
+        })
+        .catch(err => {
+            console.log(err.message)
+        })
+    };
+
+    useEffect(() => {
+    fetchUsers();
+    }, []); 
+    
+    return (
+        <div>
+          {serverError}
+    
+          <UserForm onSubmit={addUser} />
+          {
+            userList.length
+              ? userList.map(user => (
+                <div>{user.name} {user.email} {user.interest}</div>
+              ))
+              : 'Try Again!'
+          }
+        </div>
+      );
 };
-
-const validationSchema = yup.object().shape({
-    name: yup.string()
-      .required('GAGAHHH WE NEED NAME'),
-    age: yup.number()
-      .required('NO JOY GIMME AGE')
-      .integer()
-      .positive('are you really trying to feed a negative number????'),
-  });
 
 
 const validationSchema = yup.object().shape({
@@ -44,46 +86,50 @@ const validationSchema = yup.object().shape({
 })
 
 function UserForm({onSubmit}) {
-    // Let's keep the FriendForm component
-    // nice and stateless.
 
     return (
-      // needs 3 props
+
       <Formik 
       
       render={props =>{
         validationSchema={validationSchema}
+        initialValues={initUserForm}
+        onSubmit={onSubmit}
 
-            return (
-                <Form>
-                <div>
-                    <label>
-                        Name
-                        <Field name='name' type='text' placeholder='Enter Name'/>
-                    </label>
+        return (
+            <Form>
+            <div>
+                <label>
+                    Name
+                    <Field name='name' type='text' placeholder='Enter Name'/>
+                </label>
 
-                    <label>
-                        Email
-                        <Field name='email' type='text' placeholder='Enter Email'/>
-                    </label>
+                <label>
+                    Email
+                    <Field name='email' type='text' placeholder='Enter Email'/>
+                </label>
 
-                    <label>
-                        Password
-                        <Field name='password' type='text' placeholder='Enter Password'/>
-                    </label>
+                <label>
+                    Password
+                    <Field name='password' type='password' placeholder='Enter Password'/>
+                </label>
 
-                    <label>
-                        Interest
-                        <Field name='interest' type='text' placeholder='What are your interests?'/>
-                    </label>
-                
-                    <input name='checkout' type='text'> Terms of Service</input>
-                    <button type='submit'>Submit</button>
-                </div>    
-            </Form>
+                <label>
+                    Interest
+                    <Field name='interest' type='text' placeholder='What are your interests?'/>
+                </label>
+            
+                <input name='checkout' type='text'> Terms of Service</input>
+                <button type='submit'>Submit</button>
+            </div>    
+        </Form>
         )
-    } }
+    } 
+}
     />
+
+    )
+}
     
 
 export default FormikForm;
