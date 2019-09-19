@@ -19,17 +19,40 @@ const FormikForm  =  () => {
 
 
 
+
+
 };
 
-function UserForm() {
+const validationSchema = yup.object().shape({
+    name: yup.string()
+      .required('GAGAHHH WE NEED NAME'),
+    age: yup.number()
+      .required('NO JOY GIMME AGE')
+      .integer()
+      .positive('are you really trying to feed a negative number????'),
+  });
+
+
+const validationSchema = yup.object().shape({
+    name: yup.string()
+        .required('invalid format'),
+    emai: yup.string()
+    .required('invalid format'),
+    password: yup.string()
+    .required('invalid format'),
+
+})
+
+function UserForm({onSubmit}) {
     // Let's keep the FriendForm component
     // nice and stateless.
 
     return (
       // needs 3 props
       <Formik 
-
-        render={props =>{
+      
+      render={props =>{
+        validationSchema={validationSchema}
 
             return (
                 <Form>
@@ -54,7 +77,7 @@ function UserForm() {
                         <Field name='interest' type='text' placeholder='What are your interests?'/>
                     </label>
                 
-                    <input></input>
+                    <input name='checkout' type='text'> Terms of Service</input>
                     <button type='submit'>Submit</button>
                 </div>    
             </Form>
